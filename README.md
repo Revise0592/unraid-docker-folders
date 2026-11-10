@@ -40,6 +40,7 @@ src/usr/local/emhttp/plugins/simple.docker.folders/
   css/folders.css
   include/api.php            # read/save/delete folders (CSRF-checked by Unraid)
   include/icon.php           # serves folder images from flash
+  images/folder-docker.png   # plugin icon (Plugins page and CA)
 ```
 
 When a GitHub release is published, `.github/workflows/release.yml` builds and publishes the package.

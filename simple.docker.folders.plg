@@ -10,7 +10,7 @@
 <!ENTITY pkg       "&name;-&version;-noarch-1">
 ]>
 
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder" support="https://github.com/&author;/unraid-docker-folders/issues">
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder-docker.png" support="https://github.com/&author;/unraid-docker-folders/issues">
 
 <CHANGES>
 ###2026.11.10
