@@ -1,11 +1,12 @@
 # Simple Docker Folders
 
-An Unraid plugin that groups containers on the Docker tab into collapsible folders.
+An Unraid plugin that groups containers on the Docker tab and the Dashboard into collapsible folders.
 
 - Click a folder row to expand or collapse it.
 - Each folder row has buttons to start, stop or restart all of its containers, and to edit the folder.
 - A folder can have a custom image (it is resized to 128×128 PNG in the browser).
 - Folders sit at the position of their first container, so Unraid's own drag-sort order still applies.
+- On the Dashboard, the Docker Containers tile shows each folder as a tile. Click it to expand or collapse it. Folders are created and edited on the Docker tab.
 
 There are no settings pages. A docker container folder plugin should not have 20598324095724052094+ options. I just want to group containers to tidy up. If thats also what you want, then this plugin is for you.
 
@@ -35,8 +36,8 @@ When you uninstall the plugin, this data is kept. To remove it, delete the direc
 
 ```
 src/usr/local/emhttp/plugins/simple.docker.folders/
-  SimpleDockerFolders.page   # loads the CSS/JS on the Docker tab only
-  js/folders.js              # grouping, folder actions, edit dialog
+  SimpleDockerFolders.page   # loads the CSS/JS on the Docker tab and Dashboard
+  js/folders.js              # grouping (Docker tab + Dashboard), folder actions, edit dialog
   css/folders.css
   include/api.php            # read/save/delete folders (CSRF-checked by Unraid)
   include/icon.php           # serves folder images from flash

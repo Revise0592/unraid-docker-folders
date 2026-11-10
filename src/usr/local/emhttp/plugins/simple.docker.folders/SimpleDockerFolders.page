@@ -3,8 +3,8 @@ Link="sdf-hook"
 Markdown="false"
 ---
 <?
-// Buttons pages are evaluated in <head> of every page; only load on the Docker tab.
-if (strtok($_SERVER['REQUEST_URI'] ?? '', '/?') === 'Docker'):
+// Buttons pages are evaluated in <head> of every page; only load on the Docker tab and Dashboard.
+if (in_array(strtok($_SERVER['REQUEST_URI'] ?? '', '/?'), ['Docker', 'Dashboard'], true)):
   $sdfData = json_decode(@file_get_contents('/boot/config/plugins/simple.docker.folders/folders.json') ?: '', true);
   if (!is_array($sdfData) || !isset($sdfData['folders'])) $sdfData = ['folders' => []];
 ?>

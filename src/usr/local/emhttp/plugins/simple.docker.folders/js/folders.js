@@ -1,4 +1,4 @@
-/* Simple Docker Folders - groups rows on the Unraid Docker tab into collapsible folders. */
+/* Simple Docker Folders - groups containers on the Unraid Docker tab and Dashboard into collapsible folders. */
 (function () {
   'use strict';
 
@@ -7,8 +7,9 @@
   const EVENTS = '/plugins/dynamix.docker.manager/include/Events.php';
   const OPEN_KEY = 'sdf.open';
 
-  const list = document.getElementById('docker_list');
-  if (!list) return; // not the containers view (e.g. Add/Edit Container)
+  const list = document.getElementById('docker_list'); // Docker tab table body
+  const dash = document.getElementById('docker_view'); // Dashboard "Docker Containers" tile
+  if (!list && !dash) return; // neither view (e.g. Add/Edit Container, docker disabled)
 
   let data = normalize(window.SDF_DATA);
   const busy = new Set();
@@ -70,8 +71,18 @@
   // ---------- grouping ----------
 
   function render() {
+    const target = list || dash;
     observer.disconnect();
-    try { group(); } finally { observer.observe(list, { childList: true }); }
+    try { if (list) group(); else groupDashboard(); } finally { observer.observe(target, { childList: true }); }
+  }
+
+  function folderStatus(running, total) {
+    const status = !total || running === 0 ? 'stopped' : running === total ? 'started' : 'partial';
+    return {
+      status,
+      color: { started: 'green-text', partial: 'orange-text', stopped: 'red-text' }[status],
+      shape: status === 'stopped' ? 'square' : 'play',
+    };
   }
 
   function group() {
@@ -115,9 +126,7 @@
 
   function folderRow(folder, members, info, cols) {
     const running = members.filter((n) => info.get(n) && info.get(n).state).length;
-    const status = !members.length || running === 0 ? 'stopped' : running === members.length ? 'started' : 'partial';
-    const color = { started: 'green-text', partial: 'orange-text', stopped: 'red-text' }[status];
-    const shape = status === 'stopped' ? 'square' : 'play';
+    const { status, color, shape } = folderStatus(running, members.length);
     const isBusy = busy.has(folder.id);
     const isOpen = open.has(folder.id);
 
@@ -147,6 +156,74 @@
         action('stop', 'Stop all in folder', () => run(folder, 'stop')),
         action('refresh', 'Restart running in folder', () => run(folder, 'restart')),
         action('pencil', 'Edit folder', () => editor(folder))));
+  }
+
+  // ---------- dashboard ----------
+
+  // DashboardApps.php renders each container as
+  //   <span class="outer solid apps started|paused|stopped"><span id=… class="hand">icon</span>
+  //   <span class="inner"><span>name</span><br>…</span></span>
+  // inside a single cell of #docker_view, rebuilt on every loadlist().
+  function groupDashboard() {
+    dash.querySelectorAll('span.sdf-folder').forEach((el) => el.remove());
+
+    const tiles = new Map(); // container name -> tile, in Unraid's order
+    for (const el of dash.querySelectorAll('span.outer.apps')) {
+      el.classList.remove('sdf-member', 'sdf-hidden');
+      const name = el.querySelector(':scope > .inner > span');
+      if (name) tiles.set(name.textContent.trim(), el);
+    }
+    if (!tiles.size) return;
+
+    // Unraid's "Started only" switch hides stopped tiles itself; we apply it to folder members too,
+    // because jQuery's toggle() gets confused by tiles we have hidden.
+    const switchEl = document.getElementById('apps');
+    const startedOnly = !!(switchEl && switchEl.checked);
+    const position = new Map([...tiles.keys()].map((n, i) => [n, i]));
+    const claimed = new Set();
+
+    const folders = data.folders.map((f) => {
+      const members = f.containers
+        .filter((n) => tiles.has(n) && !claimed.has(n))
+        .sort((a, b) => position.get(a) - position.get(b));
+      members.forEach((n) => claimed.add(n));
+      return { folder: f, members };
+    }).filter((f) => f.members.length);
+
+    for (const { folder, members } of folders) {
+      const isOpen = open.has(folder.id);
+      const running = members.filter((n) => !tiles.get(n).classList.contains('stopped')).length;
+      const { status, color, shape } = folderStatus(running, members.length);
+
+      // `apps` (without started/stopped/paused) keeps Unraid's noApps() check correct
+      // while leaving its started/stopped counters untouched.
+      const tile = h('span', {
+        class: `outer solid apps sdf-folder sdf-${status}` + (isOpen ? ' sdf-open' : ''),
+        'data-id': folder.id,
+        title: `${isOpen ? 'Collapse' : 'Expand'} ${folder.name}`,
+        onclick: () => toggle(folder.id),
+      },
+        h('span', { class: 'sdf-hand' }, folderIcon(folder)),
+        h('span', { class: 'inner' },
+          h('span', { class: 'sdf-title' }, h('i', { class: 'fa fa-chevron-right sdf-caret' }), folder.name),
+          h('br'),
+          h('i', { class: `fa fa-${shape} ${color}` }),
+          h('span', { class: 'state' }, `${running}/${members.length} started`)));
+      if (startedOnly && running === 0) tile.classList.add('sdf-hidden');
+
+      tiles.get(members[0]).before(tile);
+      let prev = tile;
+      for (const name of members) {
+        const el = tiles.get(name);
+        el.classList.add('sdf-member');
+        el.style.display = '';
+        if (!isOpen || (startedOnly && el.classList.contains('stopped'))) el.classList.add('sdf-hidden');
+        prev.after(el);
+        prev = el;
+      }
+    }
+
+    if (typeof window.noApps === 'function') window.noApps();
   }
 
   function toggle(id) {
@@ -296,12 +373,16 @@
 
   // ---------- boot ----------
 
-  // Unraid replaces #docker_list's rows on every refresh; regroup each time.
+  // Unraid replaces #docker_list's rows / #docker_view's tile row on every refresh; regroup each time.
   // Only direct children are watched, so the live CPU/memory updates don't trigger this.
   const observer = new MutationObserver(render);
-  observer.observe(list, { childList: true });
   render();
 
-  const actions = document.querySelector('.js-actions');
-  if (actions) actions.append(h('input', { type: 'button', value: 'Add Folder', onclick: () => editor(null) }));
+  if (list) {
+    const actions = document.querySelector('.js-actions');
+    if (actions) actions.append(h('input', { type: 'button', value: 'Add Folder', onclick: () => editor(null) }));
+  } else if (window.$) {
+    // The switch fires a jQuery-triggered change and then animates for 'fast' (200ms); regroup after it settles.
+    window.$('#apps').on('change', () => setTimeout(render, 300));
+  }
 })();
