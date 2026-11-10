@@ -3,7 +3,7 @@
 <!ENTITY name      "simple.docker.folders">
 <!ENTITY author    "Revise0592">
 <!ENTITY version   "2026.11.10">
-<!ENTITY md5       "b3bbcd4fd90879b974ffdc116bf53fe2">
+<!ENTITY md5       "013b351e29e725c26345b27406e36a7f">
 <!ENTITY launch    "Docker">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
