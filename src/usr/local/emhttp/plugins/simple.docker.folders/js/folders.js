@@ -169,7 +169,7 @@
 
     const tiles = new Map(); // container name -> tile, in Unraid's order
     for (const el of dash.querySelectorAll('span.outer.apps')) {
-      el.classList.remove('sdf-member', 'sdf-hidden');
+      el.classList.remove('sdf-member', 'sdf-hidden', 'sdf-alt');
       const name = el.querySelector(':scope > .inner > span');
       if (name) tiles.set(name.textContent.trim(), el);
     }
@@ -190,15 +190,18 @@
       return { folder: f, members };
     }).filter((f) => f.members.length);
 
+    let openCount = 0;
     for (const { folder, members } of folders) {
       const isOpen = open.has(folder.id);
+      // Alternate the tint of open groups so two adjacent groups don't merge into one band.
+      const alt = isOpen && openCount++ % 2 === 1 ? ' sdf-alt' : '';
       const running = members.filter((n) => !tiles.get(n).classList.contains('stopped')).length;
       const { status, color, shape } = folderStatus(running, members.length);
 
       // `apps` (without started/stopped/paused) keeps Unraid's noApps() check correct
       // while leaving its started/stopped counters untouched.
       const tile = h('span', {
-        class: `outer solid apps sdf-folder sdf-${status}` + (isOpen ? ' sdf-open' : ''),
+        class: `outer solid apps sdf-folder sdf-${status}` + (isOpen ? ' sdf-open' : '') + alt,
         'data-id': folder.id,
         title: `${isOpen ? 'Collapse' : 'Expand'} ${folder.name}`,
         onclick: () => toggle(folder.id),
@@ -216,6 +219,7 @@
       for (const name of members) {
         const el = tiles.get(name);
         el.classList.add('sdf-member');
+        if (alt) el.classList.add('sdf-alt');
         el.style.display = '';
         if (!isOpen || (startedOnly && el.classList.contains('stopped'))) el.classList.add('sdf-hidden');
         prev.after(el);
@@ -223,7 +227,26 @@
       }
     }
 
+    fitDashboard();
     if (typeof window.noApps === 'function') window.noApps();
+  }
+
+  // Unraid lays these tiles out with float:left, so a folder tile even 1px taller than a container
+  // tile snags the next row. Pin folder tiles to the height of a real tile.
+  // Also derive an opaque group tint from the theme's tile background (works on light and dark themes).
+  function fitDashboard() {
+    const ref = [...dash.querySelectorAll('span.outer.apps:not(.sdf-folder)')].find((el) => el.offsetParent);
+    if (!ref) return; // tile collapsed/hidden; next refresh will fix it up
+    const style = getComputedStyle(ref);
+    dash.querySelectorAll('span.sdf-folder').forEach((el) => { el.style.height = style.height; });
+
+    let bg = style.backgroundColor;
+    for (let el = ref.parentElement; el && /rgba\(.*, 0\)|transparent/.test(bg); el = el.parentElement) bg = getComputedStyle(el).backgroundColor;
+    const rgb = (bg.match(/\d+(\.\d+)?/g) || [255, 255, 255]).slice(0, 3).map(Number);
+    const dark = rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114 < 128;
+    const mix = (k) => `rgb(${rgb.map((c, i) => Math.round(c + ([226, 160, 63][i] - c) * k)).join(',')})`;
+    dash.style.setProperty('--sdf-tint', mix(dark ? 0.24 : 0.18));
+    dash.style.setProperty('--sdf-tint-alt', mix(dark ? 0.11 : 0.10));
   }
 
   function toggle(id) {
