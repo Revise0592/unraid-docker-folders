@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "simple.docker.folders">
 <!ENTITY author    "Revise0592">
-<!ENTITY version   "2026.11.10">
-<!ENTITY md5       "013b351e29e725c26345b27406e36a7f">
+<!ENTITY version   "2026.11.10a">
+<!ENTITY md5       "139fa001814c83c7f96c2696a1e20846">
 <!ENTITY launch    "Docker">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
@@ -13,6 +13,9 @@
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder-docker.png" support="https://github.com/&author;/unraid-docker-folders/issues">
 
 <CHANGES>
+###2026.11.10a
+- Added an app icon
+
 ###2026.11.10
 - Initial release: group containers into collapsible folders, optional custom folder image, start/stop/restart a whole folder.
 </CHANGES>
