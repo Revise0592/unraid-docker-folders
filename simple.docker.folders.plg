@@ -1,0 +1,43 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name      "simple.docker.folders">
+<!ENTITY author    "Revise0592">
+<!ENTITY version   "2026.11.10">
+<!ENTITY md5       "36f100351aa2b6ff44aa99ea923c6f35">
+<!ENTITY launch    "Docker">
+<!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
+<!ENTITY pluginURL "&gitURL;/&name;.plg">
+<!ENTITY pkg       "&name;-&version;-noarch-1">
+]>
+
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder" support="https://github.com/&author;/unraid-docker-folders/issues">
+
+<CHANGES>
+###2026.11.10
+- Initial release: group containers into collapsible folders, optional custom folder image, start/stop/restart a whole folder.
+</CHANGES>
+
+<FILE Name="/boot/config/plugins/&name;/&pkg;.txz" Run="upgradepkg --install-new">
+<URL>&gitURL;/archive/&pkg;.txz</URL>
+<MD5>&md5;</MD5>
+</FILE>
+
+<FILE Run="/bin/bash">
+<INLINE>
+mkdir -p /boot/config/plugins/&name;/icons
+# drop packages from previous versions
+find /boot/config/plugins/&name; -maxdepth 1 -name '&name;-*.txz' ! -name '&pkg;.txz' -delete
+echo "&name; &version; installed"
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+removepkg &pkg;
+rm -rf /usr/local/emhttp/plugins/&name;
+rm -f /boot/config/plugins/&name;/*.txz
+echo "&name; removed. Folder definitions are kept in /boot/config/plugins/&name;/ (delete that directory to remove them)."
+</INLINE>
+</FILE>
+
+</PLUGIN>

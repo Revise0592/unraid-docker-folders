@@ -1,0 +1,33 @@
+/* Simple Docker Folders */
+.sdf-hook { display: none; }
+
+#docker_list tr.sdf-folder { cursor: pointer; }
+#docker_list tr.sdf-folder td.sdf-name { width: 220px; padding: 8px; white-space: nowrap; }
+#docker_list tr.sdf-folder .sdf-title { font-weight: bold; }
+#docker_list tr.sdf-folder .sdf-caret { width: 12px; margin-right: 6px; transition: transform .15s; opacity: .6; }
+#docker_list tr.sdf-folder.sdf-open .sdf-caret { transform: rotate(90deg); }
+#docker_list tr.sdf-folder .outer.partial > .img { opacity: .6; }
+#docker_list .sdf-default-icon { font-size: 28px; line-height: 32px; text-align: center; color: #e2a03f; }
+#docker_list td.sdf-actions { vertical-align: middle; }
+#docker_list .sdf-btn { display: inline-block; padding: 4px 8px; margin-right: 4px; opacity: .55; color: inherit; }
+#docker_list .sdf-btn:hover { opacity: 1; }
+
+#docker_list tr.sdf-member > td:first-child { box-shadow: inset 3px 0 0 rgba(226, 160, 63, .6); padding-left: 20px !important; }
+#docker_list tr.sdf-hidden { display: none !important; }
+
+.sdf-overlay { position: fixed; inset: 0; z-index: 100000; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.sdf-dialog { width: 100%; max-width: 440px; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 6px; box-shadow: 0 8px 30px rgba(0, 0, 0, .4); }
+.sdf-dialog h3 { margin: 0 0 14px; }
+.sdf-dialog .sdf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sdf-dialog .sdf-row input[type=text] { flex: 1; margin: 0; }
+.sdf-dialog .sdf-row input[type=button] { margin: 0; }
+.sdf-dialog .sdf-preview .img { margin: 0; width: 32px; height: 32px; }
+.sdf-dialog .sdf-default-icon { font-size: 28px; color: #e2a03f; }
+.sdf-dialog .sdf-label { font-weight: bold; margin: 6px 0; }
+.sdf-dialog .sdf-list { overflow-y: auto; min-height: 60px; border: 1px solid rgba(128, 128, 128, .35); border-radius: 4px; padding: 6px 10px; }
+.sdf-dialog .sdf-check { display: block; padding: 3px 0; cursor: pointer; }
+.sdf-dialog .sdf-owner { opacity: .55; font-size: .9em; }
+.sdf-dialog .sdf-error { min-height: 1.2em; margin: 8px 0 0; }
+.sdf-dialog .sdf-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.sdf-dialog .sdf-buttons input { margin: 0; }
+.sdf-dialog .sdf-delete { margin-right: auto !important; }

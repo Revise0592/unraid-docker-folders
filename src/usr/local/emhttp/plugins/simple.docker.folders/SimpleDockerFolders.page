@@ -1,0 +1,14 @@
+Menu="Buttons"
+Link="sdf-hook"
+Markdown="false"
+---
+<?
+// Buttons pages are evaluated in <head> of every page; only load on the Docker tab.
+if (strtok($_SERVER['REQUEST_URI'] ?? '', '/?') === 'Docker'):
+  $sdfData = json_decode(@file_get_contents('/boot/config/plugins/simple.docker.folders/folders.json') ?: '', true);
+  if (!is_array($sdfData) || !isset($sdfData['folders'])) $sdfData = ['folders' => []];
+?>
+<link type="text/css" rel="stylesheet" href="<?autov('/plugins/simple.docker.folders/css/folders.css')?>">
+<script>window.SDF_DATA = <?=json_encode($sdfData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;</script>
+<script src="<?autov('/plugins/simple.docker.folders/js/folders.js')?>" defer></script>
+<? endif; ?>
