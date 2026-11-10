@@ -1,0 +1,53 @@
+name: Release
+
+# Publish a GitHub release (tag like 2026.11.10, target: main) and this:
+#   1. builds the .txz from main
+#   2. attaches it to the release
+#   3. stamps version/md5/release notes into the .plg and pushes it to main,
+#      which is what Unraid's update check reads.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Check the tag points at main
+        run: |
+          if [ "$(git rev-parse "refs/tags/$TAG^{commit}")" != "$(git rev-parse HEAD)" ]; then
+            echo "::error::Tag $TAG is not the latest commit on main. Create the release from main's latest commit."
+            exit 1
+          fi
+
+      - name: Build
+        env:
+          NOTES: ${{ github.event.release.body }}
+        run: |
+          printf '%s\n' "$NOTES" > "$RUNNER_TEMP/notes.md"
+          ./build.sh "$TAG" "$RUNNER_TEMP/notes.md"
+
+      - name: Attach package to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" archive/*.txz --clobber
+
+      - name: Push updated .plg
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add simple.docker.folders.plg
+          git commit -m "Release $TAG"
+          git push origin main

@@ -7,7 +7,7 @@ An Unraid plugin that groups containers on the Docker tab into collapsible folde
 - A folder can have a custom image (it is resized to 128×128 PNG in the browser).
 - Folders sit at the position of their first container, so Unraid's own drag-sort order still applies.
 
-There are no settings pages, no Dashboard changes, and no background services. It is one small JS file that regroups the existing table rows after Unraid loads them.
+There are no settings pages. A docker container folder plugin should not have 20598324095724052094+ options. I just want to group containers to tidy up. If thats also what you want, then this plugin is for you.
 
 ## Install
 
@@ -42,8 +42,6 @@ src/usr/local/emhttp/plugins/simple.docker.folders/
   include/icon.php           # serves folder images from flash
 ```
 
-To release a version:
+When a GitHub release is published, `.github/workflows/release.yml` builds and publishes the package.
 
-1. Add a `###<version>` entry under `<CHANGES>` in `simple.docker.folders.plg`.
-2. Run `./build.sh [version]`. The default version is today's date. The script builds `archive/*.txz` and writes the version and MD5 into the `.plg`.
-3. Commit and push. Unraid gets the `.plg` and the package from the `main` branch.
+To build locally, run `./build.sh [version] [notes-file]`. The output goes to `archive/`.

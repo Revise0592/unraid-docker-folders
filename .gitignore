@@ -1,0 +1,18 @@
+# Build output (published as a GitHub release asset by .github/workflows/release.yml)
+archive/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local tooling
+node_modules/
+*.log
+.claude/
+
+# Personal release notes
+RELEASING.md

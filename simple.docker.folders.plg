@@ -3,7 +3,7 @@
 <!ENTITY name      "simple.docker.folders">
 <!ENTITY author    "Revise0592">
 <!ENTITY version   "2026.11.10">
-<!ENTITY md5       "36f100351aa2b6ff44aa99ea923c6f35">
+<!ENTITY md5       "b3bbcd4fd90879b974ffdc116bf53fe2">
 <!ENTITY launch    "Docker">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
@@ -18,7 +18,7 @@
 </CHANGES>
 
 <FILE Name="/boot/config/plugins/&name;/&pkg;.txz" Run="upgradepkg --install-new">
-<URL>&gitURL;/archive/&pkg;.txz</URL>
+<URL>https://github.com/&author;/unraid-docker-folders/releases/download/&version;/&pkg;.txz</URL>
 <MD5>&md5;</MD5>
 </FILE>
 

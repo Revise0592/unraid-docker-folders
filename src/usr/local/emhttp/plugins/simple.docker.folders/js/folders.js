@@ -208,7 +208,9 @@
 
     const owner = new Map();
     for (const f of data.folders) if (f.id !== folder.id) for (const n of f.containers) owner.set(n, f.name);
-    const names = (Array.isArray(window.docker) ? window.docker : []).map((c) => c.name);
+    // Containers already in another folder go to the bottom (stable sort keeps Unraid's order otherwise).
+    const names = (Array.isArray(window.docker) ? window.docker : []).map((c) => c.name)
+      .sort((a, b) => owner.has(a) - owner.has(b));
 
     const nameInput = h('input', { type: 'text', maxlength: 64, value: folder.name, placeholder: 'Folder name' });
     const preview = h('span', { class: 'sdf-preview' }, folderIcon(folder));
