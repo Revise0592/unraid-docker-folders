@@ -85,43 +85,77 @@
     };
   }
 
-  function group() {
-    list.querySelectorAll(':scope > tr.sdf-folder').forEach((r) => r.remove());
+  // Only touch an element when its state actually differs, so a regroup that changes nothing
+  // produces no DOM mutations (other plugins, e.g. compose.manager, observe #docker_list too).
+  function setClass(el, cls, on) {
+    if (el.classList.contains(cls) !== on) el.classList.toggle(cls, on);
+  }
 
+  function group() {
+    const oldFolders = new Map(); // folder id -> existing folder row
     const rows = new Map(); // container name -> row, in Unraid's order
-    for (const tr of list.querySelectorAll(':scope > tr.sortable')) {
-      tr.classList.remove('sdf-member', 'sdf-hidden');
+    for (const tr of list.children) {
+      if (tr.classList.contains('sdf-folder')) { oldFolders.set(tr.dataset.id, tr); continue; }
+      if (!tr.matches('tr.sortable')) continue;
       const name = tr.querySelector('td.ct-name .appname');
       if (name) rows.set(name.textContent.trim(), tr);
     }
-    if (!rows.size) return; // list not loaded yet, or no containers
+    if (!rows.size) { oldFolders.forEach((r) => r.remove()); return; } // list not loaded yet, or no containers
 
     const position = new Map([...rows.keys()].map((n, i) => [n, i]));
     const info = containerInfo();
     const cols = list.closest('table').querySelectorAll('thead th').length || 10;
     const claimed = new Set();
+    const leader = new Map(); // first member row -> [folder row, ...member rows]
+    const empty = []; // folder rows with no containers present, appended at the end
 
-    const folders = data.folders.map((f) => {
-      const members = f.containers
+    for (const folder of data.folders) {
+      const members = folder.containers
         .filter((n) => rows.has(n) && !claimed.has(n))
         .sort((a, b) => position.get(a) - position.get(b));
       members.forEach((n) => claimed.add(n));
-      return { folder: f, members, at: members.length ? position.get(members[0]) : Infinity };
-    }).sort((a, b) => a.at - b.at);
 
-    for (const { folder, members } of folders) {
-      const row = folderRow(folder, members, info, cols);
+      // Reuse the existing folder row if nothing about it changed.
+      // (Same folder object too: the row's click handlers close over it, and saving replaces it.)
+      let row = folderRow(folder, members, info, cols);
+      row.sdfFolder = folder;
+      const old = oldFolders.get(folder.id);
+      if (old && old.sdfFolder === folder && old.outerHTML === row.outerHTML) row = old;
+
       const isOpen = open.has(folder.id);
-      if (members.length) rows.get(members[0]).before(row); else list.append(row);
-      let prev = row;
-      for (const name of members) {
-        const tr = rows.get(name);
-        tr.classList.add('sdf-member');
-        if (!isOpen) tr.classList.add('sdf-hidden');
-        prev.after(tr);
-        prev = tr;
+      const memberRows = members.map((n) => rows.get(n));
+      for (const tr of memberRows) {
+        setClass(tr, 'sdf-member', true);
+        setClass(tr, 'sdf-hidden', !isOpen);
       }
+      if (memberRows.length) leader.set(memberRows[0], [row, ...memberRows]); else empty.push(row);
     }
+
+    // Desired order: Unraid's order, with each folder's rows pulled up to its first member.
+    const desired = [];
+    for (const el of list.children) {
+      if (el.classList.contains('sdf-folder')) continue;
+      if (leader.has(el)) { desired.push(...leader.get(el)); continue; }
+      if (el.classList.contains('sdf-member') && claimed.has(nameOf(el))) continue; // placed with its folder
+      setClass(el, 'sdf-member', false);
+      setClass(el, 'sdf-hidden', false);
+      desired.push(el);
+    }
+    desired.push(...empty);
+
+    // Move only what is out of place.
+    let cur = list.firstElementChild;
+    for (const el of desired) {
+      if (el === cur) { cur = cur.nextElementSibling; continue; }
+      list.insertBefore(el, cur);
+    }
+    const keep = new Set(desired);
+    for (const r of oldFolders.values()) if (!keep.has(r)) r.remove();
+  }
+
+  function nameOf(tr) {
+    const name = tr.querySelector('td.ct-name .appname');
+    return name ? name.textContent.trim() : null;
   }
 
   function folderRow(folder, members, info, cols) {
