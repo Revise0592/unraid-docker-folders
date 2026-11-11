@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "simple.docker.folders">
 <!ENTITY author    "Revise0592">
-<!ENTITY version   "2026.11.10c">
-<!ENTITY md5       "01c739b09b9979582215010d7e159e9f">
+<!ENTITY version   "2026.11.11">
+<!ENTITY md5       "4d389357b0c1673e913dd908d5e0df8f">
 <!ENTITY launch    "Docker">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
@@ -13,6 +13,9 @@
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder-docker.png" support="https://github.com/&author;/unraid-docker-folders/issues">
 
 <CHANGES>
+###2026.11.11
+- Fixed Docker Compose Manager stacks not expanding on the Docker tab when both plugins are installed
+
 ###2026.11.10c
 - Fixed formatting bug on dashboard page
 
