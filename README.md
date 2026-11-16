@@ -12,6 +12,10 @@ There are no settings pages. A docker container folder plugin should not have 20
 
 ## Install
 
+CA App store -> Search for Simple Docker Folders -> Install.
+
+OR
+
 In Unraid, open **Plugins → Install Plugin** and paste:
 
 ```
