@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "simple.docker.folders">
 <!ENTITY author    "Revise0592">
-<!ENTITY version   "2026.11.11">
-<!ENTITY md5       "4d389357b0c1673e913dd908d5e0df8f">
+<!ENTITY version   "2026.11.16">
+<!ENTITY md5       "6b5eb2ffd72ec8a1b5075336724a1b09">
 <!ENTITY launch    "Docker">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-docker-folders/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
@@ -13,6 +13,12 @@
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.12.0" icon="folder-docker.png" support="https://github.com/&author;/unraid-docker-folders/issues">
 
 <CHANGES>
+###2026.11.16
+## What's Changed
+* Improve dialog responsiveness on mobile and pinch-zoomed viewports
+
+**Full Changelog**: https://github.com/Revise0592/unraid-docker-folders/compare/2026.11.11...2026.11.16
+
 ###2026.11.11
 - Fixed Docker Compose Manager stacks not expanding on the Docker tab when both plugins are installed
 
