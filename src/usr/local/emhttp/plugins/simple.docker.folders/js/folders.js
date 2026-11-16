@@ -392,15 +392,21 @@
     };
     const onKey = (e) => { if (e.key === 'Escape') close(); };
 
-    async function submit(body) {
+    // Writes go to the USB flash drive, which can take a few seconds; show that something is happening.
+    async function submit(body, button, busyLabel) {
+      const label = button.value;
       error.textContent = '';
       dialog.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+      button.value = busyLabel;
+      dialog.classList.add('sdf-busy');
       try {
         data = normalize(await post(API, body));
         close();
         render();
       } catch (e) {
         error.textContent = e.message;
+        button.value = label;
+        dialog.classList.remove('sdf-busy');
         dialog.querySelectorAll('input').forEach((i) => { i.disabled = false; });
       }
     }
@@ -409,13 +415,16 @@
       const name = nameInput.value.trim();
       if (!name) { error.textContent = 'Give the folder a name.'; nameInput.focus(); return; }
       const containers = checks.map((l) => l.querySelector('input')).filter((i) => i.checked).map((i) => i.value);
-      submit({ action: 'save', id: folder.id, name, containers, icon });
+      submit({ action: 'save', id: folder.id, name, containers, icon }, saveBtn, 'Saving…');
     };
     const del = () => {
-      if (confirm(`Delete folder "${folder.name}"? Containers are not affected.`)) submit({ action: 'delete', id: folder.id });
+      if (confirm(`Delete folder "${folder.name}"? Containers are not affected.`)) submit({ action: 'delete', id: folder.id }, deleteBtn, 'Deleting…');
     };
 
-    nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+    const saveBtn = h('input', { type: 'button', value: 'Save', onclick: save });
+    const deleteBtn = isNew ? null : h('input', { type: 'button', value: 'Delete', class: 'sdf-delete', onclick: del });
+
+    nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !saveBtn.disabled) save(); });
 
     const dialog = h('div', { class: 'sdf-dialog', role: 'dialog', 'aria-modal': 'true' },
       h('h3', null, isNew ? 'New folder' : 'Edit folder'),
@@ -427,9 +436,9 @@
       h('div', { class: 'sdf-list' }, checks.length ? checks : h('em', null, 'No containers found.')),
       error,
       h('div', { class: 'sdf-buttons' },
-        isNew ? null : h('input', { type: 'button', value: 'Delete', class: 'sdf-delete', onclick: del }),
+        deleteBtn,
         h('input', { type: 'button', value: 'Cancel', onclick: close }),
-        h('input', { type: 'button', value: 'Save', onclick: save })));
+        saveBtn));
 
     const overlay = h('div', { class: 'sdf-overlay', onmousedown: (e) => { if (e.target === overlay) close(); } }, dialog);
 

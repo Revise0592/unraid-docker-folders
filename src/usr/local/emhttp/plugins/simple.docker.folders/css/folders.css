@@ -50,6 +50,7 @@
 .sdf-dialog .sdf-buttons { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .sdf-dialog .sdf-buttons input { margin: 0; }
 .sdf-dialog .sdf-delete { margin-right: auto !important; }
+.sdf-dialog.sdf-busy, .sdf-dialog.sdf-busy * { cursor: progress !important; }
 
 /* Phones and tablets: smaller margins, bigger tap targets, and 16px inputs so iOS doesn't zoom on focus. */
 @media (max-width: 600px) {
