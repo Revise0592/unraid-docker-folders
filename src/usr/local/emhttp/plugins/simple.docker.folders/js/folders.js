@@ -374,7 +374,22 @@
       ' ', n,
       owner.has(n) ? h('span', { class: 'sdf-owner' }, ` (in ${owner.get(n)})`) : null));
 
-    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    // A fixed overlay covers the layout viewport, which on a phone (pinch-zoomed, desktop mode, keyboard
+    // up) can be much bigger than what is on screen, cutting the buttons off. Track the visual viewport.
+    const vv = window.visualViewport;
+    const fitOverlay = () => {
+      if (!vv) return;
+      Object.assign(overlay.style, {
+        left: `${vv.offsetLeft}px`, top: `${vv.offsetTop}px`, right: 'auto', bottom: 'auto',
+        width: `${vv.width}px`, height: `${vv.height}px`,
+      });
+    };
+
+    const close = () => {
+      overlay.remove();
+      document.removeEventListener('keydown', onKey);
+      if (vv) { vv.removeEventListener('resize', fitOverlay); vv.removeEventListener('scroll', fitOverlay); }
+    };
     const onKey = (e) => { if (e.key === 'Escape') close(); };
 
     async function submit(body) {
@@ -424,8 +439,11 @@
     dialog.style.color = body.color;
 
     document.addEventListener('keydown', onKey);
+    if (vv) { vv.addEventListener('resize', fitOverlay); vv.addEventListener('scroll', fitOverlay); }
+    fitOverlay();
     document.body.append(overlay);
-    nameInput.focus();
+    // On touch screens, focusing pops the keyboard over the dialog (and iOS zooms in); let the user tap instead.
+    if (!window.matchMedia('(pointer: coarse)').matches) nameInput.focus();
   }
 
   // ---------- boot ----------

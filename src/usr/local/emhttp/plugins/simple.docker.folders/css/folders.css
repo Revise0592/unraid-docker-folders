@@ -29,19 +29,35 @@
 #docker_view span.sdf-alt { --sdf-tint: var(--sdf-tint-alt, #fbf4ea); }
 #docker_view span.sdf-hidden { display: none !important; }
 
-.sdf-overlay { position: fixed; inset: 0; z-index: 100000; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.sdf-dialog { width: 100%; max-width: 440px; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 6px; box-shadow: 0 8px 30px rgba(0, 0, 0, .4); }
+/* The overlay is pinned to the visual viewport from JS (see fitOverlay), so it stays on screen when the
+   page is pinch-zoomed or the on-screen keyboard is up. It scrolls if the dialog still doesn't fit, and
+   the dialog is centred with margin:auto, which (unlike align-items:center) never pushes it off the top. */
+.sdf-overlay { position: fixed; inset: 0; z-index: 100000; box-sizing: border-box; background: rgba(0, 0, 0, .5); display: flex; padding: 16px; overflow: auto; overscroll-behavior: contain; }
+.sdf-dialog { box-sizing: border-box; width: 100%; max-width: 440px; max-height: 100%; margin: auto; display: flex; flex-direction: column; padding: 20px; border-radius: 6px; box-shadow: 0 8px 30px rgba(0, 0, 0, .4); }
+.sdf-dialog > * { flex: none; } /* only the container list shrinks */
 .sdf-dialog h3 { margin: 0 0 14px; }
-.sdf-dialog .sdf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.sdf-dialog .sdf-row input[type=text] { flex: 1; margin: 0; }
+.sdf-dialog .sdf-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sdf-dialog .sdf-preview { flex: none; }
+.sdf-dialog .sdf-row input[type=text] { flex: 1; min-width: 0; width: auto; margin: 0; box-sizing: border-box; }
 .sdf-dialog .sdf-row input[type=button] { margin: 0; }
 .sdf-dialog .sdf-preview .img { margin: 0; width: 32px; height: 32px; }
 .sdf-dialog .sdf-default-icon { font-size: 28px; color: #e2a03f; }
 .sdf-dialog .sdf-label { font-weight: bold; margin: 6px 0; }
-.sdf-dialog .sdf-list { overflow-y: auto; min-height: 60px; border: 1px solid rgba(128, 128, 128, .35); border-radius: 4px; padding: 6px 10px; }
+.sdf-dialog .sdf-list { flex: 0 1 auto; overflow-y: auto; min-height: 60px; border: 1px solid rgba(128, 128, 128, .35); border-radius: 4px; padding: 6px 10px; }
 .sdf-dialog .sdf-check { display: block; padding: 3px 0; cursor: pointer; }
 .sdf-dialog .sdf-owner { opacity: .55; font-size: .9em; }
 .sdf-dialog .sdf-error { min-height: 1.2em; margin: 8px 0 0; }
-.sdf-dialog .sdf-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.sdf-dialog .sdf-buttons { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .sdf-dialog .sdf-buttons input { margin: 0; }
 .sdf-dialog .sdf-delete { margin-right: auto !important; }
+
+/* Phones and tablets: smaller margins, bigger tap targets, and 16px inputs so iOS doesn't zoom on focus. */
+@media (max-width: 600px) {
+  .sdf-overlay { padding: 8px; }
+  .sdf-dialog { padding: 14px; }
+}
+@media (pointer: coarse) {
+  .sdf-dialog input[type=text] { font-size: 16px; }
+  .sdf-dialog .sdf-check { padding: 7px 0; }
+  .sdf-dialog .sdf-buttons input, .sdf-dialog .sdf-row input[type=button] { min-height: 40px; }
+}
