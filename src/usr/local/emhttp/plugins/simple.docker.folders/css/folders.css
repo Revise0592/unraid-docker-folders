@@ -6,7 +6,6 @@
 #docker_list tr.sdf-folder .sdf-title { font-weight: bold; }
 #docker_list tr.sdf-folder .sdf-caret { width: 12px; margin-right: 6px; transition: transform .15s; opacity: .6; }
 #docker_list tr.sdf-folder.sdf-open .sdf-caret { transform: rotate(90deg); }
-#docker_list tr.sdf-folder .outer.partial > .img { opacity: .6; }
 #docker_list .sdf-default-icon { font-size: 28px; line-height: 32px; text-align: center; color: #e2a03f; }
 #docker_list td.sdf-actions { vertical-align: middle; }
 #docker_list .sdf-btn { display: inline-block; padding: 4px 8px; margin-right: 4px; opacity: .55; color: inherit; }
@@ -20,7 +19,6 @@
 #docker_view span.sdf-folder .sdf-caret { font-size: .75em; line-height: 1; margin-right: 5px; opacity: .6; transition: transform .15s; }
 #docker_view span.sdf-folder.sdf-open .sdf-caret { transform: rotate(90deg); }
 #docker_view span.sdf-folder.sdf-stopped .img { opacity: .3; }
-#docker_view span.sdf-folder.sdf-partial .img { opacity: .6; }
 #docker_view .sdf-default-icon { font-size: 28px; line-height: 32px; vertical-align: top; text-align: center; color: #e2a03f; }
 /* An open folder and its containers share a tint. The spread shadow pads it out without changing
    the tile size (which would break Unraid's float grid); the tint is opaque so overlaps don't show. */
